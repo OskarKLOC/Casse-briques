@@ -1,42 +1,33 @@
 import { Paddle } from "./Paddle.js";
 import { Ball } from "./Ball.js";
+import { Block } from "./Block.js";
+import { Message } from "./Message.js";
+
+const GAME_BOARD_WIDTH_PERCENTAGE = 80;
+const GAME_BOARD_HEIGHT_PERCENTAGE = 80;
+const MIN_RADIUS_BALL = 3.5;
+const MAX_RADIUS_BALL = 5;
+const MIN_WIDTH_PADDLE = 50;
+const MAX_WIDTH_PADDLE = 100;
 
 export class GameField
 {
     constructor(canvasId)
     {
-        // On récupère l'objet du DOM correspondant au canvas
+        // We get our dom object canvas
         let canvas = document.getElementById(canvasId);
         
-        // On redimenssionne le canvas pour que ses dimensions correspondent à ce que l'on attend
-        // /!\ A ne pas faire dans le CSS directement car cela va générer une sorte de zoom
-        canvas.width = window.innerWidth * 80 / 100;       // largeur du navigateur en pixels
-        canvas.height = window.innerHeight * 80 / 100;    // hauteur du navigateur en pixels
+        // We resize the canvas to our expectations
+        // /!\ Must not be done in CSS to avoid zoom effect
+        canvas.width = window.innerWidth * GAME_BOARD_WIDTH_PERCENTAGE / 100;
+        canvas.height = window.innerHeight * GAME_BOARD_HEIGHT_PERCENTAGE / 100;
 
-        // On récupère le contexte pour du dessin 2D
-        // Le commentaire qui précède permet d'indiquer le type, et donc d'avoir ensuite l'aide sur les propriétés et méthodes
+        // We get the context for 2D rendering
         /** @type CanvasRenderingContext2D */
         this.context = canvas.getContext('2d');
-
         this.blocks = [];
         this.gifts = [];
         this.balls = [];
-
-        this.paddle = new Paddle(
-            this.context.canvas.width / 2 - 100 / 2,
-            this.context.canvas.height - 50,
-            100,
-            10,
-            'black',
-            'red'
-        );
-        this.balls.push(new Ball(
-            this.context.canvas.width / 2,
-            this.context.canvas.height - 50 - 5,
-            5,
-            'black',
-            'red'
-        ));
 
         // On définit des valeurs par défaut avec des variables tampon qui seront nécessaires pour éviter les chevauchements
         this.strokeStyle = 'white';
@@ -52,30 +43,71 @@ export class GameField
         this.rightKeyPress = false;
 
         this.paddleShift = 10;
+
+        // Initiate event listeners
+        window.addEventListener('resize', () => this.resize());
+        document.addEventListener('keydown', (event) => this.keyDownControl(event));
+        document.addEventListener('keyup', (event) => this.keyUpControl(event));
+        document.addEventListener('mousemove', (event) => this.mouseControl(event));
+        this.context.canvas.addEventListener('touchmove', (event) => this.touchControl(event));
     }
 
+    // Reset the common parameters of the game
     reset () {
         this.blocks = [];
         this.gifts = [];
-
-        this.paddle = new Paddle(
-            this.context.canvas.width / 2 - 100 / 2,
-            this.context.canvas.height - 50,
-            100,
-            10,
-            'black',
-            'red'
-        );
-        this.ball = new Ball(
-            this.context.canvas.width / 2,
-            this.context.canvas.height - 50 - 5,
-            5,
-            'black',
-            'red'
-        );
-
+        this.balls = [];
         this.gameOver = false;
         this.paddleShift = 10;
+    }
+
+    // Adapt the game display to the new size of the window
+    resize () {
+        // Save old dimensions of the canvas to permit the resizing
+        let oldCanvasWidth = this.context.canvas.width;
+        let oldCanvasHeight = this.context.canvas.height;
+
+        // Set the new canvas dimensions
+        this.context.canvas.width = window.innerWidth * 80 / 100;
+        this.context.canvas.height = window.innerHeight * 80 / 100;
+
+        // Calculate blocks new distribution and size
+        this.blocks.forEach((block, index) => {
+            this.blocks[index].location.x = block.location.x / oldCanvasWidth * this.context.canvas.width;
+            this.blocks[index].location.y = block.location.y / oldCanvasHeight * this.context.canvas.height;
+            this.blocks[index].width = block.width / oldCanvasWidth * this.context.canvas.width;
+            this.blocks[index].height = block.height / oldCanvasHeight * this.context.canvas.height;
+        });
+
+        // Calculate gifts new distribution and size
+        this.gifts.forEach((gift, index) => {
+            this.gifts[index].location.x = gift.location.x / oldCanvasWidth * this.context.canvas.width;
+            this.gifts[index].location.y = gift.location.y / oldCanvasHeight * this.context.canvas.height;
+            this.gifts[index].width = gift.width / oldCanvasWidth * this.context.canvas.width;
+            this.gifts[index].height = gift.height / oldCanvasHeight * this.context.canvas.height;
+        });
+
+        // Calculate balls new locations and size
+        this.balls.forEach((ball, index) => {
+            this.balls[index].location.x = ball.location.x / oldCanvasWidth * this.context.canvas.width;
+            this.balls[index].location.y = ball.location.y / oldCanvasHeight * this.context.canvas.height;
+            let radius = ball.radius / oldCanvasWidth * this.context.canvas.width;
+            if (radius > MAX_RADIUS_BALL) radius = MAX_RADIUS_BALL;
+            if (radius < MIN_RADIUS_BALL) radius = MIN_RADIUS_BALL;
+            this.balls[index].radius = radius;
+        });
+
+        // Calculate paddle new location and size
+        this.paddle.location.x = this.paddle.location.x / oldCanvasWidth * this.context.canvas.width;
+        this.paddle.location.y = this.paddle.location.y / oldCanvasHeight * this.context.canvas.height;
+        let paddleWidth = this.context.canvas.width / 10;
+        if (paddleWidth < MIN_WIDTH_PADDLE) paddleWidth = MIN_WIDTH_PADDLE;
+        if (paddleWidth > MAX_WIDTH_PADDLE) paddleWidth = MAX_WIDTH_PADDLE;
+        this.paddle.width = paddleWidth;
+        this.paddle.height = this.paddle.height / oldCanvasHeight * this.context.canvas.height;
+
+        // Launch a refresh of the canvas display only if the game is not running
+        if (this.gameOver) this.refresh();
     }
 
     // Efface ce qui est dessiné dans le canvas
@@ -104,8 +136,7 @@ export class GameField
     }
 
     // Move and draw all shapes in the canvas
-    refresh ()
-    {
+    refresh () {
         // First we clear the canvas of all previous shapes
         this.clearCanvas(this.strokeStyle);
 
@@ -116,119 +147,124 @@ export class GameField
 
         // We move and draw all the falling gifts
         for (let [index, gift] of this.gifts.entries()) {
-            gift.move(this, index);
+            if (!this.gameOver) gift.move(this, index);
             gift.draw(this);
         }
 
         // We move and draw the paddle
-        if (this.leftKeyPress) this.paddle.move(this, -this.paddleShift);
-        if (this.rightKeyPress) this.paddle.move(this, this.paddleShift);
+        if (this.leftKeyPress && !this.gameOver) this.paddle.move(this, -this.paddleShift);
+        if (this.rightKeyPress && !this.gameOver) this.paddle.move(this, this.paddleShift);
         this.paddle.draw(this);
 
         // We move and draw all the balls
         for (let [index, ball] of this.balls.entries()) {
-            ball.move(this, index);
+            if (!this.gameOver) ball.move(this, index);
             ball.draw(this);
         }
 
-        // If there is no stop to the game, we recall the current function
-        if(!this.gameOver) window.requestAnimationFrame(() => this.refresh());
+        // If there is a game stop, we display a message, if not we recall the current function
+        if (this.gameOver) {
+            new Message(['Game Over !', 'Tapez sur la touche Entrée pour recommencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+        } else {
+            window.requestAnimationFrame(() => this.refresh());
+        }
     }
 
-    /* setup ()
-    {
-        
+    // Create a default grid of blocks
+    createBlocks () {
+        // We define the parameters of the grid
+        let blocksPerLine = 50;
+        let blockWidth = this.context.canvas.clientWidth / blocksPerLine;
+        let blocksPerColumn = 35;
+        let blockHeight = this.context.canvas.clientHeight / 1.5 / blocksPerColumn;
 
-        // Quand on déplace la souris, si l'un des boutons de la souris est enfoncé, il faut dessiner dans le canvas
-        this.context.canvas.addEventListener('mousemove', (event) => {
-            if (this.isDrawing)
-            {
-                // event.clientX et event.clientY contiennent les coordonnées de la souris dans le canvas
-                this.context.lineTo(event.clientX, event.clientY);
-                this.context.stroke();
+        // We initiate the game board
+        for (let i = 0; i < blocksPerLine; i++) {
+            for (let j = 0; j < blocksPerColumn; j++) {
+                this.addBlock(new Block(i*blockWidth, 20 + j*blockHeight, blockWidth, blockHeight, 'black', 'red', 1, 'ball-add-one', false)); 
             }
-        });
-
-        // On définit un tableau de valeurs possibles pour les couleurs applicables
-        let colors = [
-            'white',
-            'red',
-            'blue',
-            'green',
-            'yellow'
-        ];
-        
-        // On récupère la zone d'affichage des options de couleur
-        let colorsBar = document.querySelector('#options-couleur');
-        
-        // On y injecte les blocs des différentes couleurs possibles
-        for (const color of colors) {
-            colorsBar.innerHTML += `<div class="option-couleur" data-color="${color}"></div>`;
         }
+    }
 
-        // On récupère les blocs des différentes couleurs possibles
-        let colorOptions = document.querySelectorAll('.option-couleur');
-        
-        // Pour chacun des blocs de couleur
-        for (const colorOption of colorOptions) {
-            // On lui applique la couleur correspondante
-            colorOption.style.backgroundColor = colorOption.dataset.color;
-            // On lui applique un écouteur d'évènement clic
-            colorOption.addEventListener('click', (event) => {
-                // En cas de clic, la couleur est appliquée au style de dessin
-                this.strokeStyle = event.currentTarget.dataset.color;
-            });
+    // Create a new ball
+    createBall(color) {
+        // We define the parameters of the new ball
+        let radius = 3 / 5 / 100 * this.context.canvas.width;
+        if (radius > MAX_RADIUS_BALL) radius = MAX_RADIUS_BALL;
+        if (radius < MIN_RADIUS_BALL) radius = MIN_RADIUS_BALL;
+        let xLocation = this.paddle ? this.paddle.location.x + this.paddle.width / 2 : this.context.canvas.width / 2;
+        let yLocation = this.paddle ? this.paddle.location.y - radius : this.context.canvas.height - 50 - radius;
+
+        // We set the ball on the game board
+        this.balls.push(new Ball(xLocation, yLocation, radius, color, 'red'));
+    }
+
+    // Initialize a new game board
+    setup () {
+        // Creating a new default distribution of blocks
+        this.createBlocks();
+
+        // Creating a new default paddle which size and location depend of canvas width and height
+        let paddleWidth = this.context.canvas.width / 10;
+        if (paddleWidth < MIN_WIDTH_PADDLE) paddleWidth = MIN_WIDTH_PADDLE;
+        if (paddleWidth > MAX_WIDTH_PADDLE) paddleWidth = MAX_WIDTH_PADDLE;
+        this.paddle = new Paddle(
+            this.context.canvas.width / 2 - paddleWidth / 2,
+            this.context.canvas.height - paddleWidth / 2,
+            paddleWidth,
+            paddleWidth / 10,
+            'black',
+            'red'
+        );
+
+        // Creating a new default first ball
+        this.createBall('black');
+    }
+
+    // Relating keys donw controls to specific actions
+    keyDownControl (event) {
+        switch (event.key) {
+            case 'ArrowLeft':
+                this.leftKeyPress = true;
+                break;
+            case 'ArrowRight':
+                this.rightKeyPress = true;
+                break;
+            default:
+                break;
         }
+    }
 
-        // On définit un tableau de valeurs possibles pour les épaisseurs applicables
-        let widths = [
-            '2',
-            '4',
-            '6',
-            '8',
-            '10'
-        ];
-
-        // On récupère la zone d'affichage des options d'épaisseur
-        let widthsBar = document.querySelector('#options-epaisseur');
-        
-        // On y injecte les blocs des différentes épaisseurs possibles
-        for (const width of widths) {
-            widthsBar.innerHTML += `<div class="option-epaisseur" data-width="${width}"><div></div></div>`;
+    // Relating keys up controls to specific actions
+    keyUpControl (event) {
+        console.log('test');
+        switch (event.key) {
+            case 'Enter':
+                if (this.gameOver === true) {
+                    this.reset();
+                    this.setup();
+                    window.requestAnimationFrame(() => this.refresh());
+                }
+                break;
+            case 'ArrowLeft':
+                this.leftKeyPress = false;
+                break;
+            case 'ArrowRight':
+                this.rightKeyPress = false;
+                break;
+            default:
+                break;
         }
+    }
 
-        // On récupère les blocs des différentes épaisseurs possibles
-        let widthOptions = document.querySelectorAll('.option-epaisseur');
-        
-        // Pour chacun des blocs d'épaisseur
-        for (const widthOption of widthOptions) {
-            // On lui applique l'épaisseur correspondante
-            widthOption.firstChild.style.height = widthOption.dataset.width + 'px';
-            widthOption.firstChild.style["margin-top"] = (15 - parseInt(widthOption.dataset.width) / 2) + 'px';
-            // On lui applique un écouteur d'évènement clic
-            widthOption.addEventListener('click', (event) => {
-                // En cas de clic, l'épaisseur est appliquée au style de dessin
-                this.lineWidth = event.currentTarget.dataset.width;
-            });
-        }
+    // Handling mouse actions
+    mouseControl (event) {
+        if (!this.gameOver) this.paddle.move(this, 0, event.clientX);
+    }
 
-        // On récupère le bloc d'option de la gomme
-        let eraseOption = document.querySelector('.fa-eraser');
-        // On lui applique un écouteur d'évènement clic
-        eraseOption.addEventListener('click', () => {
-            // En cas de clic, on applique une couleur correspondant à la couleur de fond
-            this.strokeStyle = 'black';
-        });
-
-        // On récupère le bloc d'option d'effacement complet
-        let deleteOption = document.querySelector('.fa-delete-left');
-        // On lui applique un écouteur d'évènement clic
-        deleteOption.addEventListener('click', () => {
-            // En cas de clic, on appelle la fonction qui permet d'applique le même fond sur l'ensemble du canvas
-            this.clearCanvas('black');
-        });
-
-        // On efface tous les objets éventuellement préexistants et on impose une couleur de fond
-        this.clearCanvas('black');
-    } */
+    // Handling touch actions
+    touchControl (event) {
+        let touch = event.touches[0];
+        if (!this.gameOver) this.paddle.move(this, 0, touch.clientX);
+    }
 }

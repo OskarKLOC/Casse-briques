@@ -51,58 +51,53 @@ export class Gift extends Shape
         }
     }
 
+    // Apply effect of the gift to the game
     applyEffect (gameField) {
         switch (this.effect) {
+            // Increase the longer of the paddle
             case 'paddle-bigger':
                 if (gameField.paddle.width < gameField.context.canvas.width / 3) {
                     gameField.paddle.width = gameField.paddle.width * 2;
                 }
                 break;
+            // Decrease the longer of the paddle
             case 'paddle-smaller':
                 if (gameField.paddle.width > gameField.context.canvas.width / 40) {
                     gameField.paddle.width = gameField.paddle.width / 2;
                 }
                 break;
+            // Ascend the paddle
             case 'paddle-higher':
-                gameField.paddle.location.y = gameField.context.canvas.height - 150;
+                gameField.paddle.location.y = gameField.context.canvas.height - gameField.paddle.width * 1.5;
                 break;
+            // Descend the paddle
             case 'paddle-lower':
-                gameField.paddle.location.y = gameField.context.canvas.height - 50;
+                gameField.paddle.location.y = gameField.context.canvas.height - gameField.paddle.width / 2;
                 break;
+            // Increase the radius of all balls
             case 'ball-bigger':
                 for (let ball of gameField.balls) {
-                    if (ball.radius === 12) ball.radius = 15;
-                    if (ball.radius === 9) ball.radius = 12;
-                    if (ball.radius === 7) ball.radius = 9;
-                    if (ball.radius === 5) ball.radius = 7;
-                    if (ball.radius === 3) ball.radius = 5;
-                    if (ball.radius === 1) ball.radius = 3;
+                    ball.radius = ball.radius + 2;
+                    if (ball.radius > 15) ball.radius = 15;
                 }
                 break;
+            // Decrease the radius of all balls
             case 'ball-smaller':
                 for (let ball of gameField.balls) {
-                    if (ball.radius === 3) ball.radius = 1;
-                    if (ball.radius === 5) ball.radius = 3;
-                    if (ball.radius === 7) ball.radius = 5;
-                    if (ball.radius === 9) ball.radius = 7;
-                    if (ball.radius === 12) ball.radius = 9;
-                    if (ball.radius === 15) ball.radius = 12;
+                    ball.radius = ball.radius - 2;
+                    if (ball.radius > 15) ball.radius = 15;
                 }
                 break;
+            // Set an invincibility on all balls for few seconds
             case 'ball-invincible':
                 for (let ball of gameField.balls) {
                     ball.setIsInvincible(true);
                     setTimeout(() => ball.setIsInvincible(false), 5000);
                 }
                 break;
+            // Add one extra ball to the game
             case 'ball-add-one':
-                gameField.balls.push(new Ball(
-                    gameField.paddle.location.x + gameField.paddle.width / 2,
-                    gameField.paddle.location.y - 5,
-                    5,
-                    'blue',
-                    'red'
-                ));
+                gameField.createBall('blue');
                 break;  
             default:
                 break;
