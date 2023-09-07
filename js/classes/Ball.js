@@ -14,6 +14,7 @@ export class Ball extends Shape
         this.isInvincible = false;
     }
 
+    // Display the current ball
     draw (renderer)
     {
         renderer.context.beginPath();
@@ -22,8 +23,8 @@ export class Ball extends Shape
             this.location.x,
             this.location.y,
             this.radius,
-            0,              // On ne cherche à tracer que des cercles avec notre classe, la valeur sera donc toujours la même
-            Math.PI * 2     // On ne cherche à tracer que des cercles avec notre classe, la valeur sera donc toujours la même
+            0,
+            Math.PI * 2
         );
         renderer.context.strokeStyle = this.strokeColor;
         renderer.context.lineWidth = 1;
@@ -32,6 +33,7 @@ export class Ball extends Shape
         renderer.context.fill();
     }
 
+    // Move the current ball and we check the interactions
     move (gameField, index) {
         // We estimate the new location of the ball
         let newXLocation = this.location.x + this.shiftX;
@@ -161,6 +163,7 @@ export class Ball extends Shape
         this.location.y = newYLocation;   
     }
 
+    // Set a special power of invincibility to the current ball
     setIsInvincible (isInvincible) {
         this.isInvincible = isInvincible;
     }

@@ -14,6 +14,7 @@ export class Gift extends Shape
         this.effect     = effect;
     }
 
+    // Display the current gift
     draw (renderer)
     {
         renderer.context.beginPath();
@@ -31,6 +32,7 @@ export class Gift extends Shape
         renderer.context.fill();
     }
 
+    // Move the current gift and check the interactions
     move (gameField, index) {
         // We estimate the new gift location
         let newLocation = this.location.y + this.shift;

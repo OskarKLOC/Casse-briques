@@ -14,6 +14,7 @@ export class Block extends Shape
         if (gift) this.gift = gift;
     }
 
+    // Display the current block
     draw (renderer)
     {
         renderer.context.strokeStyle = this.strokeColor;
@@ -35,10 +36,12 @@ export class Block extends Shape
         );
     }
 
+    // Decrease the durability of the current block
     decreaseDurability () {
         this.durability -= 1;
     }
 
+    // Add a gift to the current block
     addGift (gift) {
         this.gift = gift;
     }

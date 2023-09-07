@@ -25,11 +25,8 @@ export class GameField
         // We get the context for 2D rendering
         /** @type CanvasRenderingContext2D */
         this.context = canvas.getContext('2d');
-        this.blocks = [];
-        this.gifts = [];
-        this.balls = [];
 
-        // On définit des valeurs par défaut avec des variables tampon qui seront nécessaires pour éviter les chevauchements
+        // We define default values if needed to a specific display
         this.strokeStyle = 'white';
         this.fillStyle = 'white';
         this.lineWidth = 2;
@@ -37,14 +34,22 @@ export class GameField
         // We initiate a void display of the canvas
         this.clearCanvas(this.fillStyle);
 
+        // We prepare our game tools
+        this.blocks = [];
+        this.gifts = [];
+        this.balls = [];
+
+        // We set the beginning values for our game run
+        this.isFirstLaunch = true;
+        this.isVictory = false;
         this.gameOver = true;
 
+        // We initiate values linked to our paddle move
         this.leftKeyPress = false;
         this.rightKeyPress = false;
-
         this.paddleShift = 10;
 
-        // Initiate event listeners
+        // We initiate the needed event listeners
         window.addEventListener('resize', () => this.resize());
         document.addEventListener('keydown', (event) => this.keyDownControl(event));
         document.addEventListener('keyup', (event) => this.keyUpControl(event));
@@ -58,6 +63,7 @@ export class GameField
         this.gifts = [];
         this.balls = [];
         this.gameOver = false;
+        this.isVictory = false;
         this.paddleShift = 10;
     }
 
@@ -107,10 +113,10 @@ export class GameField
         this.paddle.height = this.paddle.height / oldCanvasHeight * this.context.canvas.height;
 
         // Launch a refresh of the canvas display only if the game is not running
-        if (this.gameOver) this.refresh();
+        if (this.gameOver || this.isVictory || this.isFirstLaunch) this.refresh();
     }
 
-    // Efface ce qui est dessiné dans le canvas
+    // Clear all the drawings in our canvas
     clearCanvas (color)
     {
         this.context.fillStyle = color;
@@ -123,7 +129,7 @@ export class GameField
         );
     }
 
-    // Enregistre une nouvelle figure géométrique dans la liste de ce qu'il y a à dessiner
+    // Add a new block to draw in the game Field
     addBlock (shape)
     {
         this.blocks.push(shape);
@@ -162,8 +168,18 @@ export class GameField
             ball.draw(this);
         }
 
+        // We check if there is a remaining block during the game
+        if (!this.isFirstLaunch && this.blocks.length === 0) {
+            this.isVictory = true;
+            this.gameOver = true;
+        }
+
         // If there is a game stop, we display a message, if not we recall the current function
-        if (this.gameOver) {
+        if (this.isFirstLaunch) {
+            new Message(['Bienvenue dans Casse-briques !', 'Tapez sur la touche Entrée pour commencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+        } else if (this.isVictory) {
+            new Message(['Félicitations !', 'Vous avez gagné !', 'Tapez sur la touche Entrée pour recommencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+        } else if (this.gameOver) {
             new Message(['Game Over !', 'Tapez sur la touche Entrée pour recommencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
         } else {
             window.requestAnimationFrame(() => this.refresh());
@@ -237,10 +253,10 @@ export class GameField
 
     // Relating keys up controls to specific actions
     keyUpControl (event) {
-        console.log('test');
         switch (event.key) {
             case 'Enter':
-                if (this.gameOver === true) {
+                if (this.gameOver) {
+                    this.isFirstLaunch = false;
                     this.reset();
                     this.setup();
                     window.requestAnimationFrame(() => this.refresh());

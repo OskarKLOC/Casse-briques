@@ -11,6 +11,7 @@ export class Paddle extends Shape
         this.height         = height;
     }
 
+    // Display the current paddle
     draw (renderer)
     {
         renderer.context.beginPath();
@@ -28,6 +29,7 @@ export class Paddle extends Shape
         renderer.context.fill();
     }
 
+    // Move the current paddle without exit from the game field
     move (gameField, shift, position = null) {
         // The new paddle location is the mouse position if we move this one, or the old location with an added shift if we make a key press
         let newXLocation = position === null ? this.location.x + shift : position - gameField.context.canvas.offsetLeft - this.width / 2;

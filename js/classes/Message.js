@@ -13,6 +13,7 @@ export class Message extends Shape
       this.important = important;
     }
 
+    // Display the current message on the game field
     draw (renderer)
     {
       renderer.context.beginPath();     
