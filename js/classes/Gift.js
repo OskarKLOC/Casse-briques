@@ -70,11 +70,11 @@ export class Gift extends Shape
                 break;
             // Ascend the paddle
             case 'paddle-higher':
-                gameField.paddle.location.y = gameField.context.canvas.height - gameField.paddle.width * 1.5;
+                gameField.paddle.location.y = gameField.context.canvas.height - gameField.context.canvas.width / 10 * 1.5;
                 break;
             // Descend the paddle
             case 'paddle-lower':
-                gameField.paddle.location.y = gameField.context.canvas.height - gameField.paddle.width / 2;
+                gameField.paddle.location.y = gameField.context.canvas.height - gameField.context.canvas.width / 10 / 2;
                 break;
             // Increase the radius of all balls
             case 'ball-bigger':

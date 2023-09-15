@@ -11,7 +11,7 @@ export class Block extends Shape
         this.height         = height;
         this.durability     = durability;
         this.isInvincible   = isInvincible;
-        if (gift) this.gift = gift;
+        if (gift && gift !== 'none') this.gift = gift;
     }
 
     // Display the current block

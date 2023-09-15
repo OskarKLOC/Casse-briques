@@ -9,6 +9,17 @@ const MIN_RADIUS_BALL = 3.5;
 const MAX_RADIUS_BALL = 5;
 const MIN_WIDTH_PADDLE = 50;
 const MAX_WIDTH_PADDLE = 100;
+const TESTING_GIFT = 'ball-add-one';
+const GIFTS = [
+    'paddle-bigger',
+    'paddle-smaller',
+    'paddle-higher',
+    'paddle-lower',
+    'ball-bigger',
+    'ball-smaller',
+    'ball-invincible',
+    'ball-add-one'
+];
 
 export class GameField
 {
@@ -206,7 +217,7 @@ export class GameField
     }
 
     // Create a default grid of blocks
-    createBlocks () {
+    createBlocks (isTesting) {
         // We define the parameters of the grid
         let blocksPerLine = 50;
         let blockWidth = this.context.canvas.clientWidth / blocksPerLine;
@@ -216,7 +227,12 @@ export class GameField
         // We initiate the game board
         for (let i = 0; i < blocksPerLine; i++) {
             for (let j = 0; j < blocksPerColumn; j++) {
-                this.addBlock(new Block(i*blockWidth, 20 + j*blockHeight, blockWidth, blockHeight, 'black', 'red', 1, 'ball-add-one', false)); 
+                if (isTesting) {
+                    this.addBlock(new Block(i*blockWidth, 20 + j*blockHeight, blockWidth, blockHeight, 'black', 'red', 1, TESTING_GIFT, false)); 
+                } else {
+                    let gift = Math.random() > 0.9 ? GIFTS[Math.floor(GIFTS.length * Math.random())] : 'none';
+                    this.addBlock(new Block(i*blockWidth, 20 + j*blockHeight, blockWidth, blockHeight, 'black', 'red', 1, gift, false)); 
+                }
             }
         }
     }
@@ -235,9 +251,9 @@ export class GameField
     }
 
     // Initialize a new game board
-    setup () {
+    setup (isTesting = false) {
         // Creating a new default distribution of blocks
-        this.createBlocks();
+        this.createBlocks(isTesting);
 
         // Creating a new default paddle which size and location depend of canvas width and height
         let paddleWidth = this.context.canvas.width / 10;
@@ -281,6 +297,14 @@ export class GameField
                     window.requestAnimationFrame(() => this.refresh());
                 }
                 break;
+            case ' ':
+                if (this.gameOver) {
+                    this.isFirstLaunch = false;
+                    this.reset();
+                    this.setup(true);
+                    window.requestAnimationFrame(() => this.refresh());
+                }
+                break;
             case 'ArrowLeft':
                 this.leftKeyPress = false;
                 break;
@@ -302,7 +326,7 @@ export class GameField
         if (this.gameOver) {
             this.isFirstLaunch = false;
             this.reset();
-            this.setup();
+            this.setup(event.touches.length === 3);
             window.requestAnimationFrame(() => this.refresh());
         }
     }
