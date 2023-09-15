@@ -177,11 +177,29 @@ export class GameField
 
         // If there is a game stop, we display a message, if not we recall the current function
         if (this.isFirstLaunch) {
-            new Message(['Bienvenue dans Casse-briques !', 'Tapez sur la touche Entrée pour commencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+            let messages = ['Bienvenue dans Casse-briques !'];
+            if ('ontouchstart' in window) {
+                messages.push('Touchez l\'ècran pour commencer')
+            } else {
+                messages.push('Tapez sur la touche Entrée pour commencer');
+            }
+            new Message(messages,  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
         } else if (this.isVictory) {
-            new Message(['Félicitations !', 'Vous avez gagné !', 'Tapez sur la touche Entrée pour recommencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+            let messages = ['Félicitations !', 'Vous avez gagné !'];
+            if ('ontouchstart' in window) {
+                messages.push('Touchez l\'ècran pour recommencer')
+            } else {
+                messages.push('Tapez sur la touche Entrée pour recommencer');
+            }
+            new Message(messages,  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
         } else if (this.gameOver) {
-            new Message(['Game Over !', 'Tapez sur la touche Entrée pour recommencer'],  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
+            let messages = ['Game Over !'];
+            if ('ontouchstart' in window) {
+                messages.push('Touchez l\'ècran pour recommencer')
+            } else {
+                messages.push('Tapez sur la touche Entrée pour recommencer');
+            }
+            new Message(messages,  this.context.canvas.width / 2, this.context.canvas.height / 2, true, Math.round(this.context.canvas.width / 30)).draw(this);
         } else {
             window.requestAnimationFrame(() => this.refresh());
         }
