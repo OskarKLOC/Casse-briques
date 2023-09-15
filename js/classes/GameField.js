@@ -65,8 +65,8 @@ export class GameField
         document.addEventListener('keydown', (event) => this.keyDownControl(event));
         document.addEventListener('keyup', (event) => this.keyUpControl(event));
         document.addEventListener('mousemove', (event) => this.mouseControl(event));
-        this.context.canvas.addEventListener('touchstart', (event) => this.touchStartControl(event));
-        this.context.canvas.addEventListener('touchmove', (event) => this.touchMoveControl(event));
+        document.addEventListener('touchstart', (event) => this.touchStartControl(event));
+        document.addEventListener('touchmove', (event) => this.touchMoveControl(event));
     }
 
     // Reset the common parameters of the game
