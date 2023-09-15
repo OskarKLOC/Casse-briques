@@ -1,10 +1,8 @@
 import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
-export class Message extends Shape
-{
-    constructor (messages, x, y, important = true, size = 30, font = 'Arial', fillColor = 'black')
-    {
+export class Message extends Shape {
+    constructor (messages, x, y, important = true, size = 30, font = 'Arial', fillColor = 'black') {
       super(fillColor);
       this.location = new Point(x, y);
       this.size     = size;
@@ -14,8 +12,7 @@ export class Message extends Shape
     }
 
     // Display the current message on the game field
-    draw (renderer)
-    {
+    draw (renderer) {
       renderer.context.beginPath();     
 
       // If this is an important message with no game in progress, we display a transparent rectangle above the last state of the game

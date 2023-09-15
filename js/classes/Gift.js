@@ -2,10 +2,8 @@ import { Ball } from './Ball.js';
 import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
-export class Gift extends Shape
-{
-    constructor (x, y, width, height, fillColor, strokeColor, effect)
-    {
+export class Gift extends Shape {
+    constructor (x, y, width, height, fillColor, strokeColor, effect) {
         super(fillColor, strokeColor);
         this.location   = new Point(x, y);
         this.width      = width;
@@ -15,8 +13,7 @@ export class Gift extends Shape
     }
 
     // Display the current gift
-    draw (renderer)
-    {
+    draw (renderer) {
         renderer.context.beginPath();
         renderer.context.strokeStyle = this.strokeColor;
         renderer.context.lineWidth = 2;

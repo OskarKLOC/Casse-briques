@@ -2,10 +2,8 @@ import { Gift } from './Gift.js';
 import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
-export class Ball extends Shape
-{
-    constructor (x, y, radius, fillColor, strokeColor, shiftX = 2, shiftY = -2)
-    {
+export class Ball extends Shape {
+    constructor (x, y, radius, fillColor, strokeColor, shiftX = 2, shiftY = -2) {
         super(fillColor, strokeColor);
         this.location   = new Point(x, y);
         this.radius     = radius;
@@ -15,8 +13,7 @@ export class Ball extends Shape
     }
 
     // Display the current ball
-    draw (renderer)
-    {
+    draw (renderer) {
         renderer.context.beginPath();
         renderer.context.arc
         (
@@ -79,12 +76,16 @@ export class Ball extends Shape
             } 
         }
     
-        // Si la balle touche le cadre en bas, on ajuste sa position pour l'empêcher de sortir et on lance les fonctions d'arrêt de jeu
+        // Is the ball touching the ceil of the canvas ?
         if ((newYLocation + this.radius) > gameField.context.canvas.height) {
+            // We set its new location to avoid an exit from the gamefield
             newYLocation = gameField.context.canvas.height - this.radius;
+            // Is this a multiple ball set ?
             if (gameField.balls.length > 1) {
+                // If yes, we remove the current ball from the gamefield
                 gameField.balls.splice(index, 1);
             } else {
+                // If not, we set the end game indicator
                 gameField.gameOver = true;
             }
         }

@@ -23,10 +23,8 @@ const GIFTS = [
     'ball-add-one'
 ];
 
-export class GameField
-{
-    constructor(canvasId)
-    {
+export class GameField {
+    constructor(canvasId) {
         // We get our dom object canvas
         let canvas = document.getElementById(canvasId);
         
@@ -135,8 +133,7 @@ export class GameField
     }
 
     // Clear all the drawings in our canvas
-    clearCanvas (color)
-    {
+    clearCanvas (color) {
         this.context.fillStyle = color;
         this.context.fillRect
         (
@@ -148,14 +145,12 @@ export class GameField
     }
 
     // Add a new block to draw in the game Field
-    addBlock (shape)
-    {
+    addBlock (shape) {
         this.blocks.push(shape);
     }
 
     // Add a new gift to draw in the game Field
-    addGift (shape)
-    {
+    addGift (shape) {
         this.gifts.push(shape);
     }
 

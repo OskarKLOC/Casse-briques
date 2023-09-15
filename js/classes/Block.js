@@ -1,10 +1,8 @@
 import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
-export class Block extends Shape
-{
-    constructor (x, y, width, height, fillColor, strokeColor, durability = 1, gift, isInvincible = false)
-    {
+export class Block extends Shape {
+    constructor (x, y, width, height, fillColor, strokeColor, durability = 1, gift, isInvincible = false) {
         super(fillColor, strokeColor);
         this.location       = new Point(x, y);
         this.width          = width;
@@ -15,8 +13,7 @@ export class Block extends Shape
     }
 
     // Display the current block
-    draw (renderer)
-    {
+    draw (renderer) {
         renderer.context.strokeStyle = this.strokeColor;
         renderer.context.lineWidth = 2;
         renderer.context.strokeRect

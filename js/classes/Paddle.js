@@ -1,10 +1,8 @@
 import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
-export class Paddle extends Shape
-{
-    constructor (x, y, width, height, fillColor, strokeColor)
-    {
+export class Paddle extends Shape {
+    constructor (x, y, width, height, fillColor, strokeColor) {
         super(fillColor, strokeColor);
         this.location       = new Point(x, y);
         this.width          = width;
@@ -12,8 +10,7 @@ export class Paddle extends Shape
     }
 
     // Display the current paddle
-    draw (renderer)
-    {
+    draw (renderer) {
         renderer.context.beginPath();
         renderer.context.strokeStyle = this.strokeColor;
         renderer.context.lineWidth = 2;
