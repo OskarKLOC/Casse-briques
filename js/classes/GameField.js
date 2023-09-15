@@ -7,6 +7,8 @@ const GAME_BOARD_WIDTH_PERCENTAGE = 80;
 const GAME_BOARD_HEIGHT_PERCENTAGE = 80;
 const MIN_RADIUS_BALL = 3.5;
 const MAX_RADIUS_BALL = 5;
+const MIN_SHIFT_BALL = 1.5;
+const MAX_SHIFT_BALL = 2.5;
 const MIN_WIDTH_PADDLE = 50;
 const MAX_WIDTH_PADDLE = 100;
 const TESTING_GIFT = 'ball-add-one';
@@ -60,12 +62,16 @@ export class GameField
         this.rightKeyPress = false;
         this.paddleShift = 10;
 
+        // We initiate the touches counter
+        this.touchesCount = 0;
+
         // We initiate the needed event listeners
         window.addEventListener('resize', () => this.resize());
         document.addEventListener('keydown', (event) => this.keyDownControl(event));
         document.addEventListener('keyup', (event) => this.keyUpControl(event));
         document.addEventListener('mousemove', (event) => this.mouseControl(event));
         document.addEventListener('touchstart', (event) => this.touchStartControl(event));
+        document.addEventListener('touchend', (event) => this.touchEndControl(event));
         document.addEventListener('touchmove', (event) => this.touchMoveControl(event));
     }
 
@@ -190,7 +196,7 @@ export class GameField
         if (this.isFirstLaunch) {
             let messages = ['Bienvenue dans Casse-briques !'];
             if ('ontouchstart' in window) {
-                messages.push('Touchez l\'ècran pour commencer')
+                messages.push('Touchez l\'écran pour commencer')
             } else {
                 messages.push('Tapez sur la touche Entrée pour commencer');
             }
@@ -198,7 +204,7 @@ export class GameField
         } else if (this.isVictory) {
             let messages = ['Félicitations !', 'Vous avez gagné !'];
             if ('ontouchstart' in window) {
-                messages.push('Touchez l\'ècran pour recommencer')
+                messages.push('Touchez l\'écran pour recommencer')
             } else {
                 messages.push('Tapez sur la touche Entrée pour recommencer');
             }
@@ -206,7 +212,7 @@ export class GameField
         } else if (this.gameOver) {
             let messages = ['Game Over !'];
             if ('ontouchstart' in window) {
-                messages.push('Touchez l\'ècran pour recommencer')
+                messages.push('Touchez l\'écran pour recommencer')
             } else {
                 messages.push('Tapez sur la touche Entrée pour recommencer');
             }
@@ -239,15 +245,19 @@ export class GameField
 
     // Create a new ball
     createBall(color) {
-        // We define the parameters of the new ball
+        // We define the parameters of the new ball depending of the size of the canvas
         let radius = 3 / 5 / 100 * this.context.canvas.width;
         if (radius > MAX_RADIUS_BALL) radius = MAX_RADIUS_BALL;
         if (radius < MIN_RADIUS_BALL) radius = MIN_RADIUS_BALL;
-        let xLocation = this.paddle ? this.paddle.location.x + this.paddle.width / 2 : this.context.canvas.width / 2;
-        let yLocation = this.paddle ? this.paddle.location.y - radius : this.context.canvas.height - 50 - radius;
+        const xLocation = this.paddle ? this.paddle.location.x + this.paddle.width / 2 : this.context.canvas.width / 2;
+        const yLocation = this.paddle ? this.paddle.location.y - radius : this.context.canvas.height - 50 - radius;
+        let shiftX = this.context.canvas.width / 500;
+        if (shiftX > MAX_SHIFT_BALL) shiftX = MAX_SHIFT_BALL;
+        if (shiftX < MIN_SHIFT_BALL) shiftX = MIN_SHIFT_BALL;
+        const shiftY = -shiftX;
 
         // We set the ball on the game board
-        this.balls.push(new Ball(xLocation, yLocation, radius, color, 'red'));
+        this.balls.push(new Ball(xLocation, yLocation, radius, color, 'red', shiftX, shiftY));
     }
 
     // Initialize a new game board
@@ -321,14 +331,22 @@ export class GameField
         if (!this.gameOver) this.paddle.move(this, 0, event.clientX);
     }
 
-    // Handling touching actions
+    // Handling start touching actions to define the number of fingers
     touchStartControl (event) {
+        if (event.touches.length > this.touchesCount) {
+            this.touchesCount = event.touches.length;
+        }
+    }
+
+    // Handling end touching actions to correctly launch the game
+    touchEndControl (event) {
         if (this.gameOver) {
             this.isFirstLaunch = false;
             this.reset();
-            this.setup(event.touches.length === 3);
+            this.setup(this.touchesCount >= 3);
             window.requestAnimationFrame(() => this.refresh());
         }
+        this.touchesCount = 0;
     }
 
     // Handling touch moving actions
