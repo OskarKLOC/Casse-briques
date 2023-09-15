@@ -54,7 +54,8 @@ export class GameField
         document.addEventListener('keydown', (event) => this.keyDownControl(event));
         document.addEventListener('keyup', (event) => this.keyUpControl(event));
         document.addEventListener('mousemove', (event) => this.mouseControl(event));
-        this.context.canvas.addEventListener('touchmove', (event) => this.touchControl(event));
+        this.context.canvas.addEventListener('touchstart', (event) => this.touchStartControl(event));
+        this.context.canvas.addEventListener('touchmove', (event) => this.touchMoveControl(event));
     }
 
     // Reset the common parameters of the game
@@ -278,8 +279,18 @@ export class GameField
         if (!this.gameOver) this.paddle.move(this, 0, event.clientX);
     }
 
-    // Handling touch actions
-    touchControl (event) {
+    // Handling touching actions
+    touchStartControl (event) {
+        if (this.gameOver) {
+            this.isFirstLaunch = false;
+            this.reset();
+            this.setup();
+            window.requestAnimationFrame(() => this.refresh());
+        }
+    }
+
+    // Handling touch moving actions
+    touchMoveControl (event) {
         let touch = event.touches[0];
         if (!this.gameOver) this.paddle.move(this, 0, touch.clientX);
     }
