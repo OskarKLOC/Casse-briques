@@ -3,6 +3,17 @@ import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
 export class Gift extends Shape {
+    /**
+     * Set a new Gift object
+     * @param {Number} x The top left corner location on x axis
+     * @param {Number} y The top left corner location on y axis
+     * @param {Number} width The gift's width
+     * @param {Number} height The gift's height
+     * @param {String} fillColor The color used to fill the gift
+     * @param {String} strokeColor The color used to stroke the gift
+     * @param {String} effect The effect associated to the gift
+     * @returns {Gift} The new Gift object correctly initiate
+     */
     constructor (x, y, width, height, fillColor, strokeColor, effect) {
         super(fillColor, strokeColor);
         this.location   = new Point(x, y);
@@ -12,7 +23,11 @@ export class Gift extends Shape {
         this.effect     = effect;
     }
 
-    // Display the current gift
+    /**
+     * Display the current gift
+     * @param {GameField} renderer The current GameField object using the canvas renderer
+     * @returns {null} No return attempted
+     */
     draw (renderer) {
         renderer.context.beginPath();
         renderer.context.strokeStyle = this.strokeColor;
@@ -29,7 +44,12 @@ export class Gift extends Shape {
         renderer.context.fill();
     }
 
-    // Move the current gift and check the interactions
+    /**
+     * Move the current gift and check the interactions
+     * @param {GameField} gameField The current GameField object
+     * @param {Number} index Index of the gift in our gifts array
+     * @returns {null} No return attempted
+     */
     move (gameField, index) {
         // We estimate the new gift location
         let newLocation = this.location.y + this.shift;
@@ -50,7 +70,11 @@ export class Gift extends Shape {
         }
     }
 
-    // Apply effect of the gift to the game
+    /**
+     * Apply effect of the gift to the game
+     * @param {GameField} gameField The current GameField object
+     * @returns {null} No return attempted
+     */
     applyEffect (gameField) {
         switch (this.effect) {
             // Increase the longer of the paddle

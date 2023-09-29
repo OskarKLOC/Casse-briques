@@ -2,6 +2,7 @@ import { Paddle } from "./Paddle.js";
 import { Ball } from "./Ball.js";
 import { Block } from "./Block.js";
 import { Message } from "./Message.js";
+import { Gift } from './Gift.js';
 
 const GAME_BOARD_WIDTH_PERCENTAGE = 80;
 const GAME_BOARD_HEIGHT_PERCENTAGE = 80;
@@ -24,6 +25,11 @@ const GIFTS = [
 ];
 
 export class GameField {
+    /**
+     * Set a new GameField object
+     * @param {String} canvasId The id of the canvas object in our DOM
+     * @returns {Block} The new GameField object correctly initiate
+     */
     constructor(canvasId) {
         // We get our dom object canvas
         let canvas = document.getElementById(canvasId);
@@ -73,7 +79,10 @@ export class GameField {
         document.addEventListener('touchmove', (event) => this.touchMoveControl(event));
     }
 
-    // Reset the common parameters of the game
+    /**
+     * Reset the common parameters of the game
+     * @returns {null} No return attempted
+     */
     reset () {
         this.blocks = [];
         this.gifts = [];
@@ -83,7 +92,10 @@ export class GameField {
         this.paddleShift = 10;
     }
 
-    // Adapt the game display to the new size of the window
+    /**
+     * Adapt the game display to the new size of the window
+     * @returns {null} No return attempted
+     */
     resize () {
         // Save old dimensions of the canvas to permit the resizing
         let oldCanvasWidth = this.context.canvas.width;
@@ -132,7 +144,11 @@ export class GameField {
         if (this.gameOver || this.isVictory || this.isFirstLaunch) this.refresh();
     }
 
-    // Clear all the drawings in our canvas
+    /**
+     * Clear all the drawings in our canvas
+     * @param {String} color The background color used to clear our canvas
+     * @returns {null} No return attempted
+     */
     clearCanvas (color) {
         this.context.fillStyle = color;
         this.context.fillRect
@@ -144,17 +160,28 @@ export class GameField {
         );
     }
 
-    // Add a new block to draw in the game Field
+    /**
+     * Add a new block to draw in the game Field
+     * @param {Block} shape The block to add to the gamefield
+     * @returns {null} No return attempted
+     */
     addBlock (shape) {
         this.blocks.push(shape);
     }
 
-    // Add a new gift to draw in the game Field
+    /**
+     * Add a new gift to draw in the game Field
+     * @param {Gift} shape The gift to add to the gamefield
+     * @returns {null} No return attempted
+     */
     addGift (shape) {
         this.gifts.push(shape);
     }
 
-    // Move and draw all shapes in the canvas
+    /**
+     * Move and draw all shapes in the canvas
+     * @returns {null} No return attempted
+     */
     refresh () {
         // First we clear the canvas of all previous shapes
         this.clearCanvas(this.strokeStyle);
@@ -217,7 +244,11 @@ export class GameField {
         }
     }
 
-    // Create a default grid of blocks
+    /**
+     * Create a default grid of blocks
+     * @param {Boolean} isTesting A test indicator to choose a specific gamefield
+     * @returns {null} No return attempted
+     */
     createBlocks (isTesting) {
         // We define the parameters of the grid
         let blocksPerLine = 50;
@@ -238,7 +269,11 @@ export class GameField {
         }
     }
 
-    // Create a new ball
+    /**
+     * Create a new ball
+     * @param {String} color The color used to the new ball
+     * @returns {null} No return attempted
+     */
     createBall(color) {
         // We define the parameters of the new ball depending of the size of the canvas
         let radius = 3 / 5 / 100 * this.context.canvas.width;
@@ -255,7 +290,11 @@ export class GameField {
         this.balls.push(new Ball(xLocation, yLocation, radius, color, 'red', shiftX, shiftY));
     }
 
-    // Initialize a new game board
+    /**
+     * Initialize a new game board
+     * @param {Boolean} isTesting A test indicator to choose a specific gamefield
+     * @returns {null} No return attempted
+     */
     setup (isTesting = false) {
         // Creating a new default distribution of blocks
         this.createBlocks(isTesting);
@@ -277,7 +316,11 @@ export class GameField {
         this.createBall('black');
     }
 
-    // Relating keys donw controls to specific actions
+    /**
+     * Relating keys donw controls to specific actions
+     * @param {KeyboardEvent} event The keyboard event related to this callback
+     * @returns {null} No return attempted
+     */
     keyDownControl (event) {
         switch (event.key) {
             case 'ArrowLeft':
@@ -291,7 +334,11 @@ export class GameField {
         }
     }
 
-    // Relating keys up controls to specific actions
+    /**
+     * Relating keys up controls to specific actions
+     * @param {KeyboardEvent} event The keyboard event related to this callback
+     * @returns {null} No return attempted
+     */
     keyUpControl (event) {
         switch (event.key) {
             case 'Enter':
@@ -321,19 +368,31 @@ export class GameField {
         }
     }
 
-    // Handling mouse actions
+    /**
+     * Handling mouse actions
+     * @param {MouseEvent} event The mouse event related to this callback
+     * @returns {null} No return attempted
+     */
     mouseControl (event) {
         if (!this.gameOver) this.paddle.move(this, 0, event.clientX);
     }
 
-    // Handling start touching actions to define the number of fingers
+    /**
+     * Handling start touching actions to define the number of fingers
+     * @param {TouchEvent} event The touch event related to this callback
+     * @returns {null} No return attempted
+     */
     touchStartControl (event) {
         if (event.touches.length > this.touchesCount) {
             this.touchesCount = event.touches.length;
         }
     }
 
-    // Handling end touching actions to correctly launch the game
+    /**
+     * Handling end touching actions to correctly launch the game
+     * @param {TouchEvent} event The touch event related to this callback
+     * @returns {null} No return attempted
+     */
     touchEndControl (event) {
         if (this.gameOver) {
             this.isFirstLaunch = false;
@@ -344,7 +403,11 @@ export class GameField {
         this.touchesCount = 0;
     }
 
-    // Handling touch moving actions
+    /**
+     * Handling touch moving actions
+     * @param {TouchEvent} event The touch event related to this callback
+     * @returns {null} No return attempted
+     */
     touchMoveControl (event) {
         let touch = event.touches[0];
         if (!this.gameOver) this.paddle.move(this, 0, touch.clientX);

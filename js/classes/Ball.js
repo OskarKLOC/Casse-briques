@@ -3,6 +3,17 @@ import { Point } from './Point.js';
 import { Shape } from './Shape.js';
 
 export class Ball extends Shape {
+    /**
+     * Set a new Ball object
+     * @param {Number} x The ball's center location on x axis
+     * @param {Number} y The ball's center location on y axis
+     * @param {Number} radius The ball's radius
+     * @param {String} fillColor The color used to fill the ball
+     * @param {String} strokeColor The color used to stroke the ball
+     * @param {Number} shiftX The ball's shift on x axis
+     * @param {Number} shiftY The ball's shift on y axis
+     * @returns {Ball} The new Ball object correctly initiate
+     */
     constructor (x, y, radius, fillColor, strokeColor, shiftX = 2, shiftY = -2) {
         super(fillColor, strokeColor);
         this.location   = new Point(x, y);
@@ -12,7 +23,11 @@ export class Ball extends Shape {
         this.isInvincible = false;
     }
 
-    // Display the current ball
+    /**
+     * Display the current ball
+     * @param {GameField} renderer The current GameField object using the canvas renderer
+     * @returns {null} No return attempted
+     */
     draw (renderer) {
         renderer.context.beginPath();
         renderer.context.arc
@@ -30,7 +45,12 @@ export class Ball extends Shape {
         renderer.context.fill();
     }
 
-    // Move the current ball and we check the interactions
+    /**
+     * Move the current ball and we check the interactions
+     * @param {GameField} gameField The current GameField object
+     * @param {Number} index Index of the ball in our balls array
+     * @returns {null} No return attempted
+     */
     move (gameField, index) {
         // We estimate the new location of the ball
         let newXLocation = this.location.x + this.shiftX;
@@ -164,7 +184,11 @@ export class Ball extends Shape {
         this.location.y = newYLocation;   
     }
 
-    // Set a special power of invincibility to the current ball
+    /**
+     * Set a special power of invincibility to the current ball
+     * @param {Boolean} isInvincible Invincibility indicator
+     * @returns {null} No return attempted
+     */
     setIsInvincible (isInvincible) {
         this.isInvincible = isInvincible;
     }
